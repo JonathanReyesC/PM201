@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cafetería</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f4f6f9; }
+        .tab-content { background: white; padding: 20px; border-radius: 0 0 8px 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .nav-tabs .nav-link.active { font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="container my-5">
+        <h1 class="text-center mb-4 text-primary fw-bold">Cafetería</h1>
+        
+        <ul class="nav nav-tabs" id="moduloTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active text-success" id="cliente-tab" data-bs-toggle="tab" data-bs-target="#modulo-cliente" type="button" role="tab">Cliente</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link text-primary" id="caja-tab" data-bs-toggle="tab" data-bs-target="#modulo-caja" type="button" role="tab">Caja</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link text-warning" id="cocina-tab" data-bs-toggle="tab" data-bs-target="#modulo-cocina" type="button" role="tab">Cocina</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="contenidoModulos">
+            
+            <div class="tab-pane fade show active" id="modulo-cliente" role="tabpanel">
+                <div class="row pt-2">
+                    <div class="col-12">
+                        <div id="pantalla" class="p-3 bg-white border rounded"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="modulo-caja" role="tabpanel">
+                <div class="row justify-content-center pt-2">
+                    <div class="col-md-8">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Pedidos Recibidos desde Cliente</h5>
+                                <span id="total-badge" class="badge bg-light text-dark fs-6">$0.00</span>
+                            </div>
+                            <div class="card-body">
+                                <div id="contenedor-pedidos" class="row g-3"></div>
+                                <div class="text-end mt-4 border-top pt-3">
+                                    <h5 class="text-muted">Total Acumulado en Caja: <span id="total-texto" class="text-success fw-bold">$0.00</span></h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="modulo-cocina" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-4">
+                        <form id="formularioProducto" class="p-3 bg-light rounded border">
+                            <h5 class="mb-3">Gestión de Inventario</h5>
+                            <input type="hidden" id="indexProducto">
+                            <div class="mb-2">
+                                <input type="text" id="nombre" class="form-control" placeholder="Nombre del producto" required>
+                            </div>
+                            <div class="mb-2">
+                                <input type="number" id="precio" class="form-control" placeholder="Precio ($)" step="0.01" required>
+                            </div>
+                            <div class="mb-3">
+                                <input type="number" id="cantidad" class="form-control" placeholder="Cantidad" required>
+                            </div>
+                            <button type="submit" id="btnGuardar" class="btn btn-warning w-100 text-dark fw-bold">Agregar Producto</button>
+                        </form>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="table-responsive">
+                            <table class="table table-striped align-middle">
+                                <thead class="table-secondary">
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Precio</th>
+                                        <th>Cantidad</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="listaProductos"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="cliente.js"></script>
+    
+    <script>
+        const productosDefecto = [
+            { nombre: "Café Americano", precio: 35, cantidad: 10 },
+            { nombre: "Capuccino", precio: 40, cantidad: 8 },
+            { nombre: "Chocolate Abuelita", precio: 40, cantidad: 15 },
+            { nombre: "Concha de Vainilla", precio: 10, cantidad: 20 },
+            { nombre: "Dona de Chocolate", precio: 12, cantidad: 10 }
+        ];
+
+        let totalAcumuladoCaja = 0;
+
+        function obtenerTicketsServidor() {
+            return JSON.parse(localStorage.getItem("tickets_caja")) || [];
+        }
+
+        function agregarPedido(ticket) {
+            let tickets = obtenerTicketsServidor();
+            tickets.push(ticket);
+            localStorage.setItem("tickets_caja", JSON.stringify(tickets));
+            mostrarPedidosClienteEnCaja();
+        }
+
+        function mostrarPedidosClienteEnCaja() {
+            const contenedor = document.getElementById("contenedor-pedidos");
+            const totalTexto = document.getElementById("total-texto");
+            const totalBadge = document.getElementById("total-badge");
+            
+            if (!contenedor) return;
+            contenedor.innerHTML = "";
+            
+            let tickets = obtenerTicketsServidor();
+            totalAcumuladoCaja = 0;
+
+            if (tickets.length === 0) {
+                contenedor.innerHTML = `<div class="col-12 text-center text-muted py-3">No hay tickets o pedidos pendientes en caja</div>`;
+            } else {
+                tickets.forEach((ticket, index) => {
+                    totalAcumuladoCaja += ticket.total;
+                    
+                    let lineasHTML = "";
+                    ticket.items.forEach(item => {
+                        lineasHTML += `
+                            <div class="d-flex justify-content-between small text-monospace">
+                                <span>${item.cantidad}x ${item.producto}</span>
+                                <span>$${item.totalPagar.toFixed(2)}</span>
+                            </div>
+                        `;
+                    });
+
+                    let tarjetaTicket = document.createElement("div");
+                    tarjetaTicket.className = "col-md-6";
+                    tarjetaTicket.innerHTML = `
+                        <div class="card bg-light border-secondary position-relative shadow-sm" style="font-family: 'Courier New', Courier, monospace; border-style: dashed !important;">
+                            <div class="card-body p-3">
+                                <button onclick="removerTicketCaja(${index})" class="btn-close position-absolute top-0 end-0 m-2" style="font-size: 0.8rem;"></button>
+                                <div class="text-center mb-2">
+                                    <h6 class="fw-bold m-0">TICKET #${index + 1}</h6>
+                                    <small class="text-muted">Hora: ${ticket.hora}</small>
+                                    <div class="border-bottom my-2" style="border-style: dashed !important; border-color: #999 !important;"></div>
+                                </div>
+                                <div class="mb-2">
+                                    ${lineasHTML}
+                                </div>
+                                <div class="border-bottom my-2" style="border-style: dashed !important; border-color: #999 !important;"></div>
+                                <div class="d-flex justify-content-between fw-bold">
+                                    <span>TOTAL:</span>
+                                    <span class="text-success">$${ticket.total.toFixed(2)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    contenedor.appendChild(tarjetaTicket);
+                });
+            }
+
+            if (totalTexto) totalTexto.textContent = `$${totalAcumuladoCaja.toFixed(2)}`;
+            if (totalBadge) totalBadge.textContent = `$${totalAcumuladoCaja.toFixed(2)}`;
+        }
+
+        function removerTicketCaja(index) {
+            let tickets = obtenerTicketsServidor();
+            tickets.splice(index, 1);
+            localStorage.setItem("tickets_caja", JSON.stringify(tickets));
+            mostrarPedidosClienteEnCaja();
+        }
+
+        function listarProductos() {
+            let inventario = JSON.parse(localStorage.getItem("productos_cafeteria")) || productosDefecto;
+            const tablaCuerpo = document.getElementById('listaProductos');
+            if (!tablaCuerpo) return;
+            tablaCuerpo.innerHTML = "";
+
+            inventario.forEach((producto, index) => {
+                const fila = document.createElement('tr');
+                fila.innerHTML = `
+                    <td><strong>[ID: ${index + 1}]</strong> ${producto.nombre}</td>
+                    <td>$${producto.precio.toFixed(2)}</td>
+                    <td><span class="badge bg-secondary">${producto.cantidad} un.</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-warning px-2 py-0" onclick="cargarDatosFormulario(${index})">Editar</button>
+                        <button class="btn btn-sm btn-danger px-2 py-0" onclick="eliminarProducto(${index})">Eliminar</button>
+                    </td>
+                `;
+                tablaCuerpo.appendChild(fila);
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const formulario = document.getElementById('formularioProducto');
+            if (formulario) {
+                formulario.addEventListener('submit', function(evento) {
+                    evento.preventDefault();
+
+                    let inventario = JSON.parse(localStorage.getItem("productos_cafeteria")) || productosDefecto;
+                    const nombre = document.getElementById('nombre').value;
+                    const precio = parseFloat(document.getElementById('precio').value);
+                    const cantidad = parseInt(document.getElementById('cantidad').value);
+                    const index = document.getElementById('indexProducto').value;
+
+                    if (index === "") {
+                        inventario.push({ nombre, precio, cantidad });
+                    } else {
+                        inventario[index] = { nombre, precio, cantidad };
+                        document.getElementById('btnGuardar').textContent = "Agregar Producto"; 
+                        document.getElementById('indexProducto').value = "";
+                    }
+
+                    localStorage.setItem("productos_cafeteria", JSON.stringify(inventario));
+                    formulario.reset(); 
+                    listarProductos();  
+                    if (typeof mostrarCatalogo === "function") mostrarCatalogo();
+                    if (typeof mostrarPedidosClienteEnCaja === "function") mostrarPedidosClienteEnCaja();
+                });
+            }
+        });
+
+        function eliminarProducto(index) {
+            let inventario = JSON.parse(localStorage.getItem("productos_cafeteria")) || productosDefecto;
+            inventario.splice(index, 1);
+            localStorage.setItem("productos_cafeteria", JSON.stringify(inventario));
+            listarProductos();
+            if (typeof mostrarCatalogo === "function") mostrarCatalogo();
+            if (typeof mostrarPedidosClienteEnCaja === "function") mostrarPedidosClienteEnCaja();
+        }
+
+        function cargarDatosFormulario(index) {
+            let inventario = JSON.parse(localStorage.getItem("productos_cafeteria")) || productosDefecto;
+            const producto = inventario[index];
+            
+            document.getElementById('nombre').value = producto.nombre;
+            document.getElementById('precio').value = producto.precio;
+            document.getElementById('cantidad').value = producto.cantidad;
+            document.getElementById('indexProducto').value = index; 
+            document.getElementById('btnGuardar').textContent = "Actualizar Producto";
+        }
+
+        document.getElementById('cliente-tab').addEventListener('shown.bs.tab', () => { mostrarCatalogo(); });
+        document.getElementById('caja-tab').addEventListener('shown.bs.tab', () => { mostrarPedidosClienteEnCaja(); });
+        document.getElementById('cocina-tab').addEventListener('shown.bs.tab', () => { listarProductos(); });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            mostrarCatalogo();
+            mostrarPedidosClienteEnCaja();
+            listarProductos();
+        });
+    </script>
+</body>
+</html>
