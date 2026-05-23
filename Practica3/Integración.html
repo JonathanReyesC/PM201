@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Cafetería - UPQ</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .card-modulo { border: none; border-radius: 12px; transition: transform 0.2s; }
+        .card-modulo:hover { transform: translateY(-3px); }
+        .table-responsive { max-height: 250px; overflow-y: auto; }
+        .totales-caja { background: #e9ecef; border-radius: 8px; padding: 15px; }
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid py-4 px-lg-5">
+        <h2 class="text-center mb-4 fw-bold text-primary">☕ Sistema Integrado de Cafetería</h2>
+
+        <div class="row g-4">
+            
+            <div class="col-12 col-lg-5">
+                <div class="card card-modulo shadow-sm h-100 border-top border-warning border-4">
+                    <div class="card-body">
+                        <h4 class="card-title text-warning mb-3">👨‍🍳 Cocina</h4>
+                        
+                        <div class="row g-2 mb-3">
+                            <div class="col-6"><input type="text" id="nombre" class="form-control form-control-sm" placeholder="Nombre"></div>
+                            <div class="col-3"><input type="number" id="precio" class="form-control form-control-sm" placeholder="Precio"></div>
+                            <div class="col-3"><input type="number" id="cantidad" class="form-control form-control-sm" placeholder="Cant"></div>
+                            <div class="col-8">
+                                <select id="categoria" class="form-select form-select-sm">
+                                    <option value="Bebida">Bebida</option>
+                                    <option value="Postre">Postre</option>
+                                </select>
+                            </div>
+                            <div class="col-4"><button class="btn btn-primary btn-sm w-100" onclick="guardarProducto()">Guardar</button></div>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-1 mb-3">
+                            <button class="btn btn-outline-secondary btn-sm" onclick="listarProductos()">Todos</button>
+                            <button class="btn btn-outline-success btn-sm" onclick="buscarBaratos()">Baratos (≤15)</button>
+                            <button class="btn btn-outline-danger btn-sm" onclick="buscarCaros()">Caros (≥40)</button>
+                            <button class="btn btn-outline-info btn-sm" onclick="buscarBebidas()">Bebidas</button>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover border">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>$</th>
+                                        <th>Cat</th>
+                                        <th>Stock</th>
+                                        <th>⚙️</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaProductos" class="small"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-4">
+                <div class="card card-modulo shadow-sm h-100 border-top border-primary border-4">
+                    <div class="card-body">
+                        <h4 class="card-title text-primary mb-3">🧍 Cliente</h4>
+                        <button class="btn btn-sm btn-dark w-100 mb-3" onclick="cargarMenuCliente()">
+                            🖨️ Imprimir Menú en Consola
+                        </button>
+                        <h6 class="text-muted fw-bold border-bottom pb-2">Catálogo Disponible</h6>
+                        
+                        <ul id="vistaMenuCliente" class="list-group list-group-flush mb-3"></ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-3">
+                <div class="card card-modulo shadow-sm h-100 border-top border-success border-4">
+                    <div class="card-body d-flex flex-column">
+                        <h4 class="card-title text-success mb-3">💳 Caja</h4>
+                        
+                        <h6 class="text-muted fw-bold border-bottom pb-2">Historial de Tickets</h6>
+                        <div id="vistaHistorialCaja" class="flex-grow-1 overflow-auto mb-3" style="max-height: 150px;"></div>
+                        
+                        <div class="totales-caja mt-auto">
+                            <div class="d-flex justify-content-between text-muted mb-1">
+                                <span>Subtotal:</span> <strong id="lbl-subtotal">$0.00</strong>
+                            </div>
+                            <div class="d-flex justify-content-between text-muted mb-2">
+                                <span>IVA (16%):</span> <strong id="lbl-iva">$0.00</strong>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center border-top pt-2">
+                                <span class="fw-bold text-success">TOTAL:</span> 
+                                <h4 class="text-success m-0 fw-bold" id="lbl-total">$0.00</h4>
+                            </div>
+                            <button class="btn btn-outline-danger btn-sm w-100 mt-3" onclick="limpiarCaja()">Corte de Caja (Borrar)</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. LÓGICA DE COCINA (Adaptada a localStorage)
+        // ==========================================
+        let indiceEditar = -1;
+
+        function obtenerInventario() {
+            let inv = JSON.parse(localStorage.getItem("bd_cafeteria"));
+            if (!inv) {
+                // Array base proporcionado por ti
+                inv = [
+                    { nombre: "Café Americano", precio: 35, categoria: "Bebida", cantidad: 20 },
+                    { nombre: "Capuccino", precio: 40, categoria: "Bebida", cantidad: 15 },
+                    { nombre: "Chocolate Abuelita", precio: 40, categoria: "Bebida", cantidad: 10 },
+                    { nombre: "Concha de Vainilla", precio: 10, categoria: "Postre", cantidad: 30 },
+                    { nombre: "Dona de Chocolate", precio: 12, categoria: "Postre", cantidad: 25 }
+                ];
+                localStorage.setItem("bd_cafeteria", JSON.stringify(inv));
+            }
+            return inv;
+        }
+
+        function mostrarCocina(lista) {
+            const tabla = document.getElementById("tablaProductos");
+            tabla.innerHTML = "";
+            lista.forEach((producto, index) => {
+                tabla.innerHTML += `
+                    <tr>
+                        <td class="text-truncate" style="max-width: 120px;">${producto.nombre}</td>
+                        <td>$${producto.precio}</td>
+                        <td>${producto.categoria}</td>
+                        <td class="${producto.cantidad === 0 ? 'text-danger fw-bold' : ''}">${producto.cantidad}</td>
+                        <td>
+                            <button class="btn btn-warning btn-sm py-0 px-1" onclick="editarProducto(${index})">✏️</button>
+                            <button class="btn btn-danger btn-sm py-0 px-1" onclick="eliminarProducto(${index})">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function listarProductos() { mostrarCocina(obtenerInventario()); }
+
+        function guardarProducto() {
+            let inv = obtenerInventario();
+            const nombre = document.getElementById("nombre").value;
+            const precio = Number(document.getElementById("precio").value);
+            const categoria = document.getElementById("categoria").value;
+            const cantidad = Number(document.getElementById("cantidad").value);
+
+            if (!nombre || !precio) return alert("Llena los campos");
+
+            if (indiceEditar === -1) {
+                inv.push({ nombre, precio, categoria, cantidad });
+            } else {
+                inv[indiceEditar] = { nombre, precio, categoria, cantidad };
+                indiceEditar = -1;
+            }
+            localStorage.setItem("bd_cafeteria", JSON.stringify(inv));
+            document.getElementById("nombre").value = "";
+            document.getElementById("precio").value = "";
+            document.getElementById("cantidad").value = "";
+            actualizarTodo();
+        }
+
+        function editarProducto(index) {
+            let inv = obtenerInventario();
+            document.getElementById("nombre").value = inv[index].nombre;
+            document.getElementById("precio").value = inv[index].precio;
+            document.getElementById("categoria").value = inv[index].categoria;
+            document.getElementById("cantidad").value = inv[index].cantidad;
+            indiceEditar = index;
+        }
+
+        function eliminarProducto(index) {
+            let inv = obtenerInventario();
+            inv.splice(index, 1);
+            localStorage.setItem("bd_cafeteria", JSON.stringify(inv));
+            actualizarTodo();
+        }
+
+        // Filtros Cocina
+        function buscarBaratos() { mostrarCocina(obtenerInventario().filter(p => p.precio <= 15)); }
+        function buscarCaros() { mostrarCocina(obtenerInventario().filter(p => p.precio >= 40)); }
+        function buscarBebidas() { mostrarCocina(obtenerInventario().filter(p => p.categoria === "Bebida")); }
+
+
+        // ==========================================
+        // 2. LÓGICA DE CLIENTE
+        // ==========================================
+        function cargarMenuCliente() {
+            let inventario = obtenerInventario();
+            let disponibles = inventario.filter(p => p.cantidad > 0);
+
+            console.log("===================================");
+            console.log("☕ MENÚ BONITO EN CONSOLA ☕");
+            console.log("===================================");
+
+            let elementosHTML = disponibles.map(prod => {
+                console.log(`-> ${prod.nombre} ...... $${prod.precio}`);
+                let promo = (prod.categoria === "Postre") ? `<span class="badge bg-danger ms-1">PROMO</span>` : '';
+                return `
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-1">
+                        <div class="small">
+                            <strong class="text-dark">${prod.nombre}</strong> ${promo} <br>
+                            <span class="text-muted">$${prod.precio} | Disp: ${prod.cantidad}</span>
+                        </div>
+                        <button class="btn btn-sm btn-success py-1" onclick="crearPedido('${prod.nombre}', ${prod.precio})">Pedir</button>
+                    </li>
+                `;
+            });
+
+            let contenedor = document.getElementById("vistaMenuCliente");
+            contenedor.innerHTML = "";
+            elementosHTML.forEach(html => contenedor.innerHTML += html);
+        }
+
+        function crearPedido(nombre, precio) {
+            let inv = obtenerInventario();
+            let index = inv.findIndex(p => p.nombre === nombre);
+            
+            if (index !== -1 && inv[index].cantidad > 0) {
+                inv[index].cantidad--;
+                localStorage.setItem("bd_cafeteria", JSON.stringify(inv));
+                agregarPedidoCaja(nombre, precio);
+                actualizarTodo();
+            }
+        }
+
+
+        // ==========================================
+        // 3. LÓGICA DE CAJA
+        // ==========================================
+        const agregarPedidoCaja = (nombre, precio) => {
+            let pedidos = JSON.parse(localStorage.getItem("bd_pedidos")) || [];
+            pedidos.push({ nombre: nombre, precio: precio });
+            localStorage.setItem("bd_pedidos", JSON.stringify(pedidos));
+            calcularTotalesCaja();
+        };
+
+        const calcularTotalesCaja = () => {
+            let pedidos = JSON.parse(localStorage.getItem("bd_pedidos")) || [];
+            
+            let subtotal = pedidos.reduce((acc, pedidoActual) => {
+                const { precio } = pedidoActual; 
+                return acc + Number(precio);
+            }, 0);
+
+            let iva = subtotal * 0.16;
+            let total = subtotal + iva;
+
+            document.getElementById("lbl-subtotal").innerText = `$${subtotal.toFixed(2)}`;
+            document.getElementById("lbl-iva").innerText = `$${iva.toFixed(2)}`;
+            document.getElementById("lbl-total").innerText = `$${total.toFixed(2)}`;
+
+            let vistaHistorial = document.getElementById("vistaHistorialCaja");
+            vistaHistorial.innerHTML = "";
+            pedidos.forEach((p, i) => {
+                vistaHistorial.innerHTML += `
+                    <div class="d-flex justify-content-between border-bottom py-1 text-muted small">
+                        <span>#${i+1} ${p.nombre}</span>
+                        <span class="fw-bold">$${p.precio}</span>
+                    </div>`;
+            });
+        };
+
+        const limpiarCaja = () => {
+            localStorage.removeItem("bd_pedidos");
+            calcularTotalesCaja();
+        }
+
+        // ==========================================
+        // INICIALIZACIÓN GLOBAL
+        // ==========================================
+        function actualizarTodo() {
+            listarProductos();
+            cargarMenuCliente();
+            calcularTotalesCaja();
+        }
+        
+        // Rúbrica: find() en consola
+        setTimeout(() => {
+            let inv = obtenerInventario();
+            const productoEncontrado = inv.find(p => p.nombre === "Capuccino");
+            console.log("🔍 Producto encontrado con find():", productoEncontrado);
+        }, 500);
+
+        actualizarTodo();
+    </script>
+</body>
+</html>
