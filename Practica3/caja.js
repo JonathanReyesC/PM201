@@ -1,73 +1,40 @@
-function calcularCajaAutomatico() {
+// --- LÓGICA DE CAJA ---
+const agregarPedidoCaja = (nombre, precio) => {
+    let pedidos = JSON.parse(localStorage.getItem("bd_pedidos")) || [];
+    // Agregar al array de pedidos
+    pedidos.push({ nombre: nombre, precio: precio });
+    localStorage.setItem("bd_pedidos", JSON.stringify(pedidos));
+    
+    calcularTotalesCaja();
+};
 
-    const contenedorPedidosCaja = document.getElementById(
-        "contenedor-pedidos-caja"
-    );
+const calcularTotalesCaja = () => {
+    let pedidos = JSON.parse(localStorage.getItem("bd_pedidos")) || [];
+    
+    // 1. Rúbrica: Uso de reduce() y Destructuring
+    let subtotal = pedidos.reduce((acumulador, pedidoActual) => {
+        const { precio } = pedidoActual; // Destructuring
+        return acumulador + Number(precio);
+    }, 0);
 
-    contenedorPedidosCaja.innerHTML = "";
+    // 2. Cálculos matemáticos
+    let iva = subtotal * 0.16;
+    let total = subtotal + iva;
 
-    let pedidosEnCaja = JSON.parse(
-        localStorage.getItem('bd_pedidos2')
-    ) || [];
+    // 3. Pintar en pantalla
+    document.getElementById("lbl-subtotal").innerText = `$${subtotal.toFixed(2)}`;
+    document.getElementById("lbl-iva").innerText = `$${iva.toFixed(2)}`;
+    document.getElementById("lbl-total").innerText = `$${total.toFixed(2)}`;
 
-    if (pedidosEnCaja.length === 0) {
-
-        contenedorPedidosCaja.innerHTML = `
-            <div class="text-center text-muted py-3">
-                Esperando pedidos...
-            </div>
-        `;
-
-        actualizarCamposTotales(0, 0, 0);
-        return;
-    }
-
-    const totalGeneral = pedidosEnCaja.reduce(
-        (suma, { precio }) => suma + Number(precio),
-        0
-    );
-
-    const subtotal = totalGeneral / 1.16;
-    const iva = totalGeneral - subtotal;
-
-    actualizarCamposTotales(
-        subtotal,
-        iva,
-        totalGeneral
-    );
-
-    pedidosEnCaja.forEach(({ nombre, precio }, index) => {
-
-        contenedorPedidosCaja.innerHTML += `
-            <div class="alert alert-info d-flex justify-content-between align-items-center py-2 mb-2 shadow-sm">
-
-                <span>
-                    <strong>#${index + 1}</strong>
-                    ${nombre}
-                </span>
-
-                <span class="badge bg-primary fs-6">
-                    $${Number(precio).toFixed(2)}
-                </span>
-
-            </div>
-        `;
+    // 4. Listar historial
+    let contenedorHistorial = document.getElementById("vistaHistorialCaja");
+    contenedorHistorial.innerHTML = "";
+    pedidos.forEach((p, i) => {
+        contenedorHistorial.innerHTML += `
+            <div class="d-flex justify-content-between border-bottom py-1 text-muted small">
+                <span>#${i+1} ${p.nombre}</span>
+                <span>$${p.precio}</span>
+            </div>`;
     });
-}
+};
 
-function actualizarCamposTotales(subtotal, iva, total) {
-
-    document.getElementById("caja-subtotal").textContent =
-        `$${subtotal.toFixed(2)}`;
-
-    document.getElementById("caja-iva").textContent =
-        `$${iva.toFixed(2)}`;
-
-    document.getElementById("caja-total").textContent =
-        `$${total.toFixed(2)}`;
-}
-
-window.addEventListener(
-    'DOMContentLoaded',
-    calcularCajaAutomatico
-);
