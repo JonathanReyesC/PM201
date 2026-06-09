@@ -1,28 +1,24 @@
-/*Zona 1: Importacion de archivos y componentes*/ 
+//Zona 1: Importaciones de archivos y Componentes
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, Image } from 'react-native';
 import { Saludo } from './components/Saludo';
 import { Saludo2 } from './components/Saludo2';
-import { Perfil } from './components/Perfil'; 
+import { Perfil } from './components/Perfil';
 
-/*Zona 2: Main -Componentes*/
+//Zona 2: Main - componentes 
 export default function App() {
   return (
     <View style={styles.container}>
-      <Image source={require('./assets/wave.png')}/>
-      <Text>Hola Mundo React Native</Text>
-      <Text>------------------------------</Text>
-      <Saludo/>
-      <Text>------------------------------</Text>
-      <Saludo2/>
-      <Text>------------------------------</Text>
-      <Perfil /> 
+
+      <Perfil nombre="Jonathan Carbajal Reyes" carrera="Ingeniería en Sistemas Computacionales" materia="Programación Móvil" cuatrimestre="9" />
+      <Perfil nombre="Santiago Amaya" carrera="Ingeniería en Sistemas Computacionales" materia="Programación Movil" cuatrimestre="9" />
+
       <StatusBar style="auto" />
     </View>
   );
 }
 
-/*Zona 3: Estilos y posicionamiento*/
+//Zona 3: Estilos
 const styles = StyleSheet.create({
   container: {
     flex: 1,
