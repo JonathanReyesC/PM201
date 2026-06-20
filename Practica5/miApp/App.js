@@ -1,24 +1,30 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View } from 'react-native';
-import MenuScreen from './Screens/MenuScreen'
+import { StyleSheet, Text, View, Image } from 'react-native';
+import MenuScreen from './Screens/MenuScreen';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+
 
 
 export default function App() {
   return (
-
+     <SafeAreaProvider>
+      <MenuScreen></MenuScreen>
+      </SafeAreaProvider>
+     
+      
+      
     
-    <MenuScreen></MenuScreen>
- 
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row' , 
+
+    backgroundColor: '#f35858',
+
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    alignItems: 'flex-start',
   },
-  
 });
