@@ -10,6 +10,7 @@ import PressableScreen from './Pressable';
 import SwitchScreen from './SwitchScreen';
 import { TextInputScreen } from './TextInputScreen'; 
 import ComponenteAlert from './Alert'; // <-- Importamos tu nuevo archivo
+import Practica13 from './Practica13';
 
 export default function App() {
     const [screen, setScreen] = useState('menu');
@@ -26,7 +27,9 @@ export default function App() {
         case 'textinput':
             return <TextInputScreen />; 
         case 'alert':
-            return <ComponenteAlert />; // <-- Nuevo caso para la alerta
+            return <ComponenteAlert />;
+        case 'practica13':
+            return <Practica13 />;
         case 'menu':
         default:
             return (
@@ -40,6 +43,8 @@ export default function App() {
                         <Button title="Práctica Switch" onPress={() => setScreen('switch')} />
                         <Button title="Práctica TextInput" onPress={() => setScreen('textinput')} />
                         <Button title="Práctica Alert" onPress={() => setScreen('alert')} />
+                        <Button title="Práctica 13: Repaso" onPress={() => setScreen('practica13')} />
+                           
                     </View>
                     
                     <StatusBar style="auto" />
