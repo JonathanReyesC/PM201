@@ -2,15 +2,19 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, Text, Button } from 'react-native';
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import SectionListScreen from './SectionListScreen';
 
-// Importaciones de todas tus prácticas
+// Importaciones de todas tus prácticas anteriores
 import TarjetasScreen from './TarjetasScreen';
 import Componente1 from './Componente1';
 import PressableScreen from './Pressable'; 
 import SwitchScreen from './SwitchScreen';
 import { TextInputScreen } from './TextInputScreen'; 
-import ComponenteAlert from './Alert'; // <-- Importamos tu nuevo archivo
-import Practica13 from './Practica13';
+import ComponenteAlert from './Alert'; 
+import Practica13 from './Practica13'; 
+
+
+import FlatListScreen from './FlatListScreen'; 
 
 export default function App() {
     const [screen, setScreen] = useState('menu');
@@ -27,9 +31,17 @@ export default function App() {
         case 'textinput':
             return <TextInputScreen />; 
         case 'alert':
-            return <ComponenteAlert />;
+            return <ComponenteAlert />; 
         case 'practica13':
             return <Practica13 />;
+            
+        
+        case 'flatlist':
+            return <FlatListScreen />; 
+
+        case 'sectionlist':
+            return <SectionListScreen />;
+            
         case 'menu':
         default:
             return (
@@ -44,7 +56,9 @@ export default function App() {
                         <Button title="Práctica TextInput" onPress={() => setScreen('textinput')} />
                         <Button title="Práctica Alert" onPress={() => setScreen('alert')} />
                         <Button title="Práctica 13: Repaso" onPress={() => setScreen('practica13')} />
-                           
+                        <Button title="Práctica FlatList" onPress={() => setScreen('flatlist')} />
+                        <Button title="Práctica SectionList" onPress={() => setScreen('sectionlist')} />
+                        
                     </View>
                     
                     <StatusBar style="auto" />
@@ -66,6 +80,6 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   botonesContenedor: {
-    gap: 15, // Mantiene la separación limpia entre todos tus botones
+    gap: 15, 
   }
 });
