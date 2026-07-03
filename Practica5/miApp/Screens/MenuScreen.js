@@ -1,9 +1,9 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, Text, Button } from 'react-native';
+import { StyleSheet, View, Text, Button, ScrollView } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-// Importaciones de todas tus prácticas
+// Importaciones
 import TarjetasScreen from './TarjetasScreen';
 import Componente1 from './Componente1';
 import PressableScreen from './Pressable'; 
@@ -15,15 +15,15 @@ import FlatListScreen from './FlatListScreen';
 import SectionListScreen from './SectionListScreen';
 import { ImagenFondo } from './ImagenFondo';
 import { SplashScreen } from './SplashScreen';
+import ComponentesNativosScreen from './ComponentesNativosScreen';
 
 export default function App() {
     const [screen, setScreen] = useState('menu');
 
-   
     useEffect(() => {
         if (screen === 'splashScreen') {
             const timer = setTimeout(() => {
-                setScreen('menu'); 
+                setScreen('menu');
             }, 4000); 
             return () => clearTimeout(timer); 
         }
@@ -41,6 +41,7 @@ export default function App() {
         case 'sectionlist': return <SectionListScreen />;
         case 'imagenfondo': return <ImagenFondo />;
         case 'splashScreen': return <SplashScreen />;
+        case 'componentesNativos': return <ComponentesNativosScreen />;
 
         case 'menu':
         default:
@@ -48,7 +49,8 @@ export default function App() {
                 <SafeAreaView style={styles.container}>
                     <Text style={styles.titulo}>Menú de Prácticas</Text>
                     
-                    <View style={styles.botonesContenedor}>
+              
+                    <ScrollView contentContainerStyle={styles.botonesContenedor} showsVerticalScrollIndicator={false}>
                         <Button title="1. Tarjetas" onPress={() => setScreen('tarjetas')} />
                         <Button title="2. Scroll & SafeArea" onPress={() => setScreen('componente1')} />
                         <Button title="3. Pressable" onPress={() => setScreen('pressable')} />
@@ -60,7 +62,8 @@ export default function App() {
                         <Button title="9. SectionList" onPress={() => setScreen('sectionlist')} />
                         <Button title="10. Imagen Background" onPress={() => setScreen('imagenfondo')} />
                         <Button title="11. Splash Screen (Carga)" onPress={() => setScreen('splashScreen')} />
-                    </View>
+                        <Button title="12. Componentes Nativos" onPress={() => setScreen('componentesNativos')} color="#1D3557" />
+                    </ScrollView>
                     
                     <StatusBar style="auto" />
                 </SafeAreaView>
@@ -73,7 +76,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
-    justifyContent: 'center',
+    paddingTop: 20,
   },
   titulo: {
     fontSize: 24,
@@ -82,6 +85,7 @@ const styles = StyleSheet.create({
   },
   botonesContenedor: {
     gap: 10, 
-    width: '80%'
+    width: 250,
+    paddingBottom: 40,
   }
 });
