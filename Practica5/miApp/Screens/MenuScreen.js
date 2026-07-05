@@ -17,6 +17,9 @@ import { ImagenFondo } from './ImagenFondo';
 import { SplashScreen } from './SplashScreen';
 import ComponentesNativosScreen from './ComponentesNativosScreen';
 
+
+import Practica17 from './Practica17';
+
 export default function App() {
     const [screen, setScreen] = useState('menu');
 
@@ -42,6 +45,7 @@ export default function App() {
         case 'imagenfondo': return <ImagenFondo />;
         case 'splashScreen': return <SplashScreen />;
         case 'componentesNativos': return <ComponentesNativosScreen />;
+        case 'practica17': return <Practica17 />;
 
         case 'menu':
         default:
@@ -49,7 +53,6 @@ export default function App() {
                 <SafeAreaView style={styles.container}>
                     <Text style={styles.titulo}>Menú de Prácticas</Text>
                     
-              
                     <ScrollView contentContainerStyle={styles.botonesContenedor} showsVerticalScrollIndicator={false}>
                         <Button title="1. Tarjetas" onPress={() => setScreen('tarjetas')} />
                         <Button title="2. Scroll & SafeArea" onPress={() => setScreen('componente1')} />
@@ -63,6 +66,7 @@ export default function App() {
                         <Button title="10. Imagen Background" onPress={() => setScreen('imagenfondo')} />
                         <Button title="11. Splash Screen (Carga)" onPress={() => setScreen('splashScreen')} />
                         <Button title="12. Componentes Nativos" onPress={() => setScreen('componentesNativos')} color="#1D3557" />
+                        <Button title="13. Práctica 17 (Catálogo Libros)" onPress={() => setScreen('practica17')} color="#008080" />
                     </ScrollView>
                     
                     <StatusBar style="auto" />
