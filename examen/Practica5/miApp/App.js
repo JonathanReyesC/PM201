@@ -3,7 +3,6 @@ import { StyleSheet } from 'react-native';
 import MenuScreen from './Screens/MenuScreen';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-
 export default function App() {
   return (
     <SafeAreaProvider>
@@ -11,7 +10,7 @@ export default function App() {
     </SafeAreaProvider>
   );
 }
-
+ 
 const styles = StyleSheet.create({
   container: {
     flex: 1,

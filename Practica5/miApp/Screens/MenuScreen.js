@@ -5,7 +5,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Importaciones
 import TarjetasScreen from './TarjetasScreen';
-import Componente1 from './Componente1';
 import PressableScreen from './Pressable'; 
 import SwitchScreen from './SwitchScreen';
 import { TextInputScreen } from './TextInputScreen'; 
@@ -16,9 +15,8 @@ import SectionListScreen from './SectionListScreen';
 import { ImagenFondo } from './ImagenFondo';
 import { SplashScreen } from './SplashScreen';
 import ComponentesNativosScreen from './ComponentesNativosScreen';
-
-
 import Practica17 from './Practica17';
+import Practica18 from './Practica18';
 
 export default function App() {
     const [screen, setScreen] = useState('menu');
@@ -34,7 +32,8 @@ export default function App() {
 
     switch (screen) {
         case 'tarjetas': return <TarjetasScreen />;
-        case 'componente1': return <Componente1 />;
+        // Si sobreescribiste Componente1 para la práctica 18, esto abrirá el Modal
+        case 'componente1': return <Componente1 />; 
         case 'pressable': return <PressableScreen />;
         case 'switch': return <SwitchScreen />;
         case 'textinput': return <TextInputScreen />; 
@@ -46,6 +45,9 @@ export default function App() {
         case 'splashScreen': return <SplashScreen />;
         case 'componentesNativos': return <ComponentesNativosScreen />;
         case 'practica17': return <Practica17 />;
+        
+        // NUEVA RUTA: Práctica 18 apunta a tu archivo Componente1
+        case 'practica18': return <Practica18 />;
 
         case 'menu':
         default:
@@ -67,6 +69,9 @@ export default function App() {
                         <Button title="11. Splash Screen (Carga)" onPress={() => setScreen('splashScreen')} />
                         <Button title="12. Componentes Nativos" onPress={() => setScreen('componentesNativos')} color="#1D3557" />
                         <Button title="13. Práctica 17 (Catálogo Libros)" onPress={() => setScreen('practica17')} color="#008080" />
+                        
+                        {/* NUEVO BOTÓN AGREGADO */}
+                        <Button title="14. Práctica 18 (Modal & BottomSheet)" onPress={() => setScreen('practica18')} color="#d35400" />
                     </ScrollView>
                     
                     <StatusBar style="auto" />

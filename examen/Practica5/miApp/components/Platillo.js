@@ -2,23 +2,23 @@ import { View, Text, Button, StyleSheet } from 'react-native';
 import React, { useState } from 'react';
 
 
-export const Perfil = ({nombre, carrera, materia, cuatrimestre, style}) => {
+export const Perfil = ({nombre, precio, paisorigen, style}) => {
     const [mostrar, setMostrar] = useState(false);
     
     return(
-         
+        
         <View style={[estilos.tarjeta, style]}>  
             <Text style={estilos.nombre}>{nombre}</Text>
 
             {mostrar &&
             <>
-                <Text style={estilos.carrera}>{carrera}</Text>
-                <Text style={estilos.otroTexto}>{materia}</Text>
-                <Text style={estilos.otroTexto}>{cuatrimestre}</Text>
+                <Text style={estilos.nombre}>{nombre}</Text>
+                <Text style={estilos.otroTexto}>{precio}</Text>
+                <Text style={estilos.otroTexto}>{paisorigen}</Text>
             </>
             }
 
-            <Button title="Ver Perfil" onPress={() => setMostrar(!mostrar)}/>
+            <Button title="Ver Platillo" onPress={() => setMostrar(!mostrar)}/>
         </View>
     );
 }
